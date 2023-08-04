@@ -1,55 +1,83 @@
-import json
+# pyright: basic
+
 from unittest import TestCase
 from src.normalize import Mapping, unserialize, translate
 
 mapping1: Mapping = {
     '__fields': {
-        'nome': {
-            'map': 'name',
+        'name': {
+            'map': 'nome',
             'type': 'string'
         },
-        'idade': {
-            'map': 'age',
+        'age': {
+            'map': 'idade',
             'type': 'string',
             'modifiers': [
                 'enforce'
             ]
         },
-        'cachorro': {
-            'map': 'dog',
+        'array_elem': {
+            'map': '.profissoes[1].cargo',
+            'type': 'string',
+            'array': True
+        },
+        'array_copy': {
+            'map': '.detalhes.habilidades',
+            'type': 'string',
+            'array': True
+        },
+        'dog': {
+            'map': 'cachorro',
             'type': 'object',
             '__fields': {
-                'apelido': {
-                    'map': 'alias',
+                'alias': {
+                    'map': 'apelido',
                     'type': 'string'
                 }
             }
         },
-        'profissoes': {
-            'map': 'jobs',
+        'jobs': {
+            'map': 'profissoes',
             'type': 'object',
             'array': True,
             '__fields': {
-                'empresa': {
-                    'map': 'business',
+                'business': {
+                    'map': 'empresa',
                     'type': 'string'
                 },
-                'cargo': {
-                    'map': 'position',
+                'position': {
+                    'map': '.nome',
                     'type': 'string'
                 },
-                'salario': {
-                    'map': 'wage',
+                'wage': {
+                    'map': 'salario',
                     'type': 'string',
                     'default': 1500,
                     'modifiers': [
                         'enforce'
                     ]
+                },
+                'skill': {
+                    'map': '.detalhes.habilidades[]',
+                    'type': 'string',
+                    'array': True
+                }
+            }
+        },
+        'details': {
+            'map': 'detalhes',
+            'type': 'object',
+            '__fields': {
+                'skills': {
+                    'map': 'habilidades',
+                    'type': 'string',
+                    'array': True
                 }
             }
         }
     }
 }
+
 
 sample1 = {
     'nome': 'jurandir',
@@ -66,7 +94,13 @@ sample1 = {
             'empresa': 'self-employed',
             'cargo': 'tradutor e diagramador'
         }
-    ]
+    ],
+    'detalhes': {
+        'habilidades': [
+            'programacao',
+            'escrita'
+        ]
+    }
 }
 
 class TestTranslate(TestCase):
