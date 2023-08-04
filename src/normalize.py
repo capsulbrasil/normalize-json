@@ -84,7 +84,7 @@ def handle_modifiers(node: Node, modifiers: list[Modifier], old_value: typing.An
     return value
 
 
-def translate(target: T, mapping: Mapping, acc: RawObject = {}, parent: str | None = None, inherited_modifiers: list[Modifier] | None = None) -> T:
+def translate(target: T, mapping: Mapping, acc: RawObject = {}, inherited_modifiers: list[Modifier] | None = None) -> T:
     ret: RawObject = {}
 
     if isinstance(target, dict):
@@ -98,7 +98,7 @@ def translate(target: T, mapping: Mapping, acc: RawObject = {}, parent: str | No
 
             if '__fields' in node:
                 child: typing.Any = target[original_name]
-                ret[mapped_name] = translate(child, node, acc, parent, modifiers)
+                ret[mapped_name] = translate(child, node, acc, modifiers)
                 continue
 
             value = handle_modifiers(node, modifiers, typing.cast(RawObject, target).get(original_name))
@@ -112,7 +112,7 @@ def translate(target: T, mapping: Mapping, acc: RawObject = {}, parent: str | No
             raise ValueError('unexpected array')
 
         result = [
-            translate(e, mapping, acc, parent, inherited_modifiers)
+            translate(e, mapping, acc, inherited_modifiers)
             for e in typing.cast(list[typing.Any], target)
         ]
 
