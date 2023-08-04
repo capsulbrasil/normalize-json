@@ -113,4 +113,4 @@ Available modifiers are:
 
 ## License
 
-Semantic API is [MIT licensed](https://github.com/capsulbrasil/normalize-json/tree/master/LICENSE).
+This library is [MIT licensed](https://github.com/capsulbrasil/normalize-json/tree/master/LICENSE).
