@@ -38,7 +38,7 @@ Suppose you have the following structured data:
 }
 ```
 
-An example mapping could be as following. In this example we'll rename the `.nested_prop.age` path to `.nested_prop.years_on_earth` and move the `.skills` path to `.nested_prop.skills`. Notice how properties with names starting with a dot (".") will be treated as paths whereas properties without a dot in the beginning will be treated as same-level properties.
+An example mapping could be as following. In this example we'll rename the `.nested_prop.age` path to `.nested_prop.years_on_earth` while converting its value to `string` and move the `.skills` path to `.nested_prop.skills`. Notice how properties with names starting with a dot (".") will be treated as paths whereas properties without a dot in the beginning will be treated as same-level properties.
 
 ```json
 {
