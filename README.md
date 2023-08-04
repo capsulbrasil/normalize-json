@@ -72,7 +72,7 @@ An example mapping could be as following. In this example we'll rename the `.nes
 }
 ```
 
-Running `translate(sample. mapping)` against it would derive the following JSON:
+Running `translate(sample, mapping)` against it would derive the following JSON:
 
 ```json
 {
