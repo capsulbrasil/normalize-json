@@ -15,7 +15,6 @@ TYPE_MAPPING = {
 }
 
 Modifier = typing.Literal[
-    'array',
     'strict',
     'reverse',
     'default_null',
@@ -61,7 +60,7 @@ def unserialize(raw: RawObject | str | bytes, mime: AcceptedMime = 'application/
     raise TypeError('invalid mime')
 
 def flatten(target: RawObject, separator: str = '.', preserve_arrays: bool = False):
-    out: RawObject = {}
+    ret: RawObject = {}
 
     def internal_flatten(obj: typing.Any, parent: str = '') -> typing.Any:
         if isinstance(obj, dict):
@@ -70,17 +69,17 @@ def flatten(target: RawObject, separator: str = '.', preserve_arrays: bool = Fal
 
         elif isinstance(obj, list):
             if preserve_arrays:
-                out[parent] = obj
+                ret[parent] = obj
                 return
 
             for i, v in enumerate(typing.cast(list[RawObject], obj)):
                 internal_flatten(v, '%s[%d]' % (parent, i))
 
         else:
-            out[parent] = obj
+            ret[parent] = obj
 
     internal_flatten(target)
-    return out
+    return ret
 
 
 def check_types(node: Node, value: typing.Any, expected: typing.Any):
