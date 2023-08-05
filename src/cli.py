@@ -2,7 +2,7 @@ import argparse
 import typing
 import sys
 import json
-from . import translate, flatten, unserialize, RawObject, Mapping
+from . import translate, flatten, RawObject, Mapping
 
 CliOptions = typing.TypedDict('CliOptions', {
     'target': str,
@@ -12,6 +12,9 @@ CliOptions = typing.TypedDict('CliOptions', {
         'flatten'
     ]
 })
+
+def output(obj: RawObject):
+    print(json.dumps(obj, indent=2))
 
 def main(options: CliOptions):
     target: RawObject = {}
@@ -31,9 +34,11 @@ def main(options: CliOptions):
                 sys.exit(1)
 
             result = translate(target, mapping)
-            print(json.dumps(result, indent=2))
+            output(result)
 
-        case 'flatten': ...
+        case 'flatten':
+            result = flatten(target)
+            output(result)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(

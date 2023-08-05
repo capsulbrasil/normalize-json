@@ -153,10 +153,10 @@ def translate(target: T | tuple[T, int], mapping: Mapping, acc: RawObject = {}, 
                 n = n.strip()
                 if typing.cast(RawObject, target).get(n):
                     mapped_name = n
-                if flat_obj.get(n):
+                elif flat_obj.get(n):
                     mapped_name = n
                     initial_value = flat_obj[n]
-                if '[]' in n:
+                elif '[]' in n:
                     mapped_name = n.replace('[]', '[%d]' % target_index)
                 elif mapped_name in flat_obj_arr:
                     initial_value = flat_obj_arr.get(mapped_name)
