@@ -84,8 +84,8 @@ Running `translate(sample, mapping)` against it would derive the following JSON:
 ```json
 {
   "nested_prop": {
-    "name": "John Doe",
-    "years_on_earth": "35",
+    "name": "Terry Davis",
+    "years_on_earth": "50",
     "mastered_skills": [
       "smartest programmed that has ever lived",
       "high priest",
