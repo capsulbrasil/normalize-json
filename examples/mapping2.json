@@ -1,0 +1,18 @@
+{
+  "modifiers": [
+    "strict",
+    "enforce"
+  ],
+  "__fields": {
+    "name": {
+      "map": "person_name",
+      "type": "string",
+      "default": "serj"
+    },
+    "age": {
+      "map": "person_age",
+      "type": "string",
+      "default": 50
+    }
+  }
+}

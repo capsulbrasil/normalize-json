@@ -1,0 +1,30 @@
+{
+  "modifiers": [
+    "strict",
+    "enforce",
+    "default_null"
+  ],
+  "__fields": {
+    "entry": {
+      "map": "shipment",
+      "type": "object",
+      "__fields": {
+        "items": {
+          "map": "products",
+          "type": "object",
+          "array": true,
+          "__fields": {
+            "title": {
+              "map": "name",
+              "type": "string"
+            },
+            "count": {
+              "map": "quantity",
+              "type": "number"
+            }
+          }
+        }
+      }
+    }
+  }
+}

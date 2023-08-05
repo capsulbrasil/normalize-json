@@ -1,0 +1,29 @@
+{
+  "modifiers": [
+    "reverse",
+    "enforce"
+  ],
+  "__fields": {
+    "entry": {
+      "map": "entry",
+      "type": "object",
+      "__fields": {
+        "items": {
+          "map": "products",
+          "type": "object",
+          "array": true,
+          "__fields": {
+            "name": {
+              "map": "title",
+              "type": "string"
+            },
+            "quantity": {
+              "map": "stock",
+              "type": "integer"
+            }
+          }
+        }
+      }
+    }
+  }
+}

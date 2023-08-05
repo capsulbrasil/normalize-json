@@ -3,18 +3,25 @@
 ## Run typechecking
 
 ```sh
-python -m pyright
+$ python -m pyright
 ```
 
 ## Run tests
 
 ```sh
-python -m unittest tests/*.py
+$ python -m unittest tests/*.py
+```
+
+## CLI
+
+```sh
+$ python -m normalize-json -h
 ```
 
 ## Use cases
 
 This library can be used to normalize several API specs into a single standardized structure.
+Click [here](https://github.com/capsulbrasil/normalize-json/tree/master/examples) to view some examples.
 
 ## Usage
 

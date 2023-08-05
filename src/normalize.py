@@ -87,7 +87,9 @@ def check_types(node: Node, value: typing.Any, expected: typing.Any):
         if node.get('array') \
         else value.__class__.__name__
 
-    if actual == TYPE_MAPPING.get(str(expected)):
+    vexpected = TYPE_MAPPING.get(str(expected))
+    if actual == vexpected \
+            or (actual == 'int' and vexpected in ['number', 'float']):
         return None
 
     return actual, str(expected)
@@ -136,30 +138,34 @@ def translate(target: T | tuple[T, int], mapping: Mapping, acc: RawObject = {}, 
         if '__fields' not in mapping:
             raise TypeError('__fields not present')
 
+        root_modifiers = mapping.get('modifiers', inherited_modifiers or [])
+
         for original_name, node in mapping['__fields'].items():
             mapped_name = node['map']
             mapped_type = node['type']
             initial_value: typing.Any = None
 
+            modifiers = node.get('modifiers', root_modifiers)
+            if 'reverse' in modifiers:
+                mapped_name, original_name = original_name, mapped_name
+
             for n in mapped_name if isinstance(mapped_name, list) else mapped_name.split('|'):
                 n = n.strip()
                 if typing.cast(RawObject, target).get(n):
                     mapped_name = n
+                if flat_obj.get(n):
+                    mapped_name = n
+                    initial_value = flat_obj[n]
+                if '[]' in n:
+                    mapped_name = n.replace('[]', '[%d]' % target_index)
+                elif mapped_name in flat_obj_arr:
+                    initial_value = flat_obj_arr.get(mapped_name)
 
             mapped_name = typing.cast(str, mapped_name)
-            if '[]' in mapped_name and node.get('array'):
-                mapped_name = mapped_name.replace('[]', '[%d]' % target_index)
-
-            elif mapped_name in flat_obj_arr:
-                initial_value = flat_obj_arr.get(mapped_name)
-
-            modifiers = node.get('modifiers', inherited_modifiers or [])
-
-            if 'reverse' in modifiers:
-                mapped_name, original_name = original_name, mapped_name
+            original_name = typing.cast(str, original_name)
 
             if '__fields' in node:
-                child: typing.Any = target[mapped_name]
+                child: typing.Any = initial_value or target[mapped_name]
                 ret[original_name] = translate(child, node, acc, modifiers, (flat_obj, flat_obj_arr))
                 continue
 

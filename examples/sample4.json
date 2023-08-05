@@ -1,0 +1,26 @@
+{
+  "name": "Test",
+  "skus": {
+    "data": [
+      {
+        "sku": "sku#test",
+        "title": "Test plan",
+        "price_sale": "Price sale"
+      },
+      {
+        "sku": "sku#test2",
+        "title": "Test plan 2",
+        "price_sale": "Price sale new"
+      }
+    ]
+  },
+  "images": {
+    "data": [
+      {
+        "medium": {
+          "url": "http://site.com/image.jpg"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "array": true,
+  "modifiers": [
+    "enforce"
+  ],
+  "__fields": {
+    "name": {
+      "map": "name",
+      "type": "string"
+    },
+    "code": {
+      "map": ".skus.data[0].sku | sku",
+      "type": "string"
+    },
+    "plans": {
+      "map": ".skus.data",
+      "type": "object",
+      "array": true,
+      "__fields": {
+        "name": {
+          "map": ".skus.data[].title",
+          "type": "string"
+        },
+        "code": {
+          "map": ".skus.data[].sku",
+          "type": "string"
+        },
+        "price": {
+          "map": ".skus.data[].price_sale",
+          "type": "string"
+        }
+      }
+    },
+    "image": {
+      "map": ".images.data[0].medium.url",
+      "type": "string"
+    }
+  }
+}

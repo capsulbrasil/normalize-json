@@ -1,0 +1,14 @@
+{
+  "shipment": {
+    "products": [
+      {
+        "name": "Product name #1",
+        "quantity": 1
+      },
+      {
+        "name": "Product name #2",
+        "quantity": 2
+      }
+    ]
+  }
+}
