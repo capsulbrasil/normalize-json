@@ -26,6 +26,14 @@ mapping1: Mapping = {
             'type': 'string',
             'array': True
         },
+        'trim_me_start': {
+            'type': 'string',
+            'trim_start': 3
+        },
+        'trim_me_end': {
+            'type': 'string',
+            'trim_end': 3
+        },
         'dog': {
             'map': 'cachorro',
             'type': 'object',
@@ -82,6 +90,8 @@ mapping1: Mapping = {
 sample1 = {
     'nome': 'jurandir',
     'idade': 23,
+    'trim_me_start': 'abc123',
+    'trim_me_end': 'abc123',
     'cachorro': {
         'apelido': 'Thor'
     },
@@ -117,4 +127,7 @@ class TestTranslate(TestCase):
 
         self.assertEqual(result['jobs'][1]['business'], str(sample1['profissoes'][1]['empresa']))
         self.assertEqual(result['jobs'][1]['wage'], '1500')
+
+        self.assertEqual(result['trim_me_start'], '123')
+        self.assertEqual(result['trim_me_end'], 'abc')
 
