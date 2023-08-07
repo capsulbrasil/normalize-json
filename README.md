@@ -180,6 +180,12 @@ Available modifiers are:
 - `default_null`: set None (or null) as the default value for absent properties
 - `enforce`: cast values to expected type instead of raising a TypeError
 
+### Attributes
+
+- `array`: whether the expected value is an array or not
+- `trim_start`: trim `n` characters from the beginning of the string
+- `trim_end`: trim `n` characters from the end of the string
+
 ## Support and contributing
 
 You can obtain suport if you're using this library on production. Just email the author at joaosan177[at]gmail.com. You may also send PRs, just make sure to include tests and follow PEP guidelines.
