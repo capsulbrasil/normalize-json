@@ -27,7 +27,7 @@ jobs:
           pipenv sync
       - name: Perform typechecking
         run: |
-          python -m pyright
+          pipenv run python -m pyright
       - name: Perform tests
         run: |
-          python -m unittest tests/*.py
+          pipenv run python -m unittest tests/*.py
