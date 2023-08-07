@@ -191,8 +191,8 @@ def translate(target: T | tuple[T, int], mapping: Mapping, acc: RawObject = {}, 
             ret[original_name] = value
 
     if isinstance(target, list):
-        if not 'array' in mapping:
-            raise ValueError('unexpected array')
+        if not mapping.get('array'):
+            raise ValueError('illegal array')
 
         result = [
             translate((e, idx), mapping, acc, inherited_modifiers, (flat_obj, flat_obj_arr))

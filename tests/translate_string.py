@@ -1,7 +1,7 @@
 # pyright: basic
 
 from unittest import TestCase
-from src.normalize import StringMapping, unserialize, translate_string
+from src.normalize_json.normalize import StringMapping, unserialize, translate_string
 
 mapping1: StringMapping = {
   '__fields': {

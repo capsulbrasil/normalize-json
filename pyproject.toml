@@ -1,6 +1,6 @@
 [project]
 name = 'normalize_json'
-version = '0.0.1'
+version = '0.0.3'
 authors = [
   { name = 'João Gabriel Santos', email = 'joaosan177@gmail.com' }
 ]
@@ -15,3 +15,10 @@ classifiers = [
 
 [project.urls]
 'Homepage' = 'https://github.com/capsulbrasil/normalize-json'
+
+[tool.setuptools]
+packages = [
+  'normalize_json'
+]
+
+package-dir = { '' = 'src' }

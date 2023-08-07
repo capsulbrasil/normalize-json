@@ -1,7 +1,7 @@
 # pyright: basic
 
 from unittest import TestCase
-from src.normalize import Mapping, unserialize, translate
+from src.normalize_json.normalize import Mapping, unserialize, translate
 
 mapping1: Mapping = {
     '__fields': {
@@ -33,6 +33,10 @@ mapping1: Mapping = {
         'trim_me_end': {
             'type': 'string',
             'trim_end': 3
+        },
+        'pick_until': {
+            'type': 'string',
+            'pick_until': ' '
         },
         'dog': {
             'map': 'cachorro',
@@ -92,6 +96,7 @@ sample1 = {
     'idade': 23,
     'trim_me_start': 'abc123',
     'trim_me_end': 'abc123',
+    'pick_until': 'Terry A. Davis',
     'cachorro': {
         'apelido': 'Thor'
     },
@@ -130,4 +135,5 @@ class TestTranslate(TestCase):
 
         self.assertEqual(result['trim_me_start'], '123')
         self.assertEqual(result['trim_me_end'], 'abc')
+        self.assertEqual(result['pick_until'], 'Terry')
 

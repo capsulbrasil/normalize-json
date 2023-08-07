@@ -185,6 +185,7 @@ Available modifiers are:
 - `array`: whether the expected value is an array or not
 - `trim_start`: trim `n` characters from the beginning of the string
 - `trim_end`: trim `n` characters from the end of the string
+- `pick_until`: same as `value.split(str)[0]`
 
 ## Support and contributing
 
