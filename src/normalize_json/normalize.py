@@ -62,7 +62,7 @@ def unserialize(raw: RawObject | str | bytes, mime: AcceptedMime = 'application/
     match mime:
         case 'application/json':
             if isinstance(raw, dict): return raw
-            if isinstance(raw, str): return raw
+            if isinstance(raw, str): return json.loads(raw)
             else: return json.loads(raw)
 
     raise TypeError('invalid mime')
