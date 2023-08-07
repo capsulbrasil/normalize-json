@@ -36,7 +36,7 @@ AcceptedMime = typing.Literal[
 ]
 
 Node = typing.TypedDict('Node', {
-    'map': str | list[str],
+    'map': typing.NotRequired[str | list[str]],
     'type': AcceptedType,
     'array': typing.NotRequired[bool],
     'default': typing.NotRequired[typing.Any],
@@ -47,6 +47,10 @@ Node = typing.TypedDict('Node', {
 Mapping = typing.TypedDict('Mapping', {
     'modifiers': typing.NotRequired[list[Modifier]],
     '__fields': typing.NotRequired[dict[str, 'Node']]
+})
+
+StringMapping = typing.TypedDict('StringMapping', {
+    '__fields': dict[str, str | list[str]]
 })
 
 RawObject = dict[str, typing.Any]
@@ -102,7 +106,7 @@ def handle_modifiers(node: Node, modifiers: list[Modifier], old_value: typing.An
         elif 'default_null' in modifiers:
             return None
         else:
-            raise ValueError('value for %s wasnt provided' % node['map'])
+            raise ValueError('value for %s wasnt provided' % node.get('map'))
 
     if 'enforce' in modifiers:
         match node['type']:
@@ -141,7 +145,7 @@ def translate(target: T | tuple[T, int], mapping: Mapping, acc: RawObject = {}, 
         root_modifiers = mapping.get('modifiers', inherited_modifiers or [])
 
         for original_name, node in mapping['__fields'].items():
-            mapped_name = node['map']
+            mapped_name = node.get('map', original_name)
             mapped_type = node['type']
             initial_value: typing.Any = None
 
@@ -192,4 +196,13 @@ def translate(target: T | tuple[T, int], mapping: Mapping, acc: RawObject = {}, 
 
     return typing.cast(T, ret)
 
+
+def translate_string(target: str, mapping: StringMapping):
+    for k, v in mapping['__fields'].items():
+        if isinstance(v, str):
+            if v == target:
+                return k
+        else:
+            if target in v:
+                return k
 

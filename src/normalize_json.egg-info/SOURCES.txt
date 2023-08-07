@@ -1,0 +1,10 @@
+LICENSE
+README.md
+pyproject.toml
+src/__init__.py
+src/cli.py
+src/normalize.py
+src/normalize_json.egg-info/PKG-INFO
+src/normalize_json.egg-info/SOURCES.txt
+src/normalize_json.egg-info/dependency_links.txt
+src/normalize_json.egg-info/top_level.txt

@@ -1,9 +1,28 @@
+Metadata-Version: 2.1
+Name: normalize-json
+Version: 0.0.1
+Summary: todo
+Author-email: João Gabriel Santos <joaosan177@gmail.com>
+Project-URL: Homepage, https://github.com/capsulbrasil/normalize-json
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
 # normalize-json
 
-## Install
+## Run typechecking
 
 ```sh
-$ pip install normalize-json
+$ python -m pyright
+```
+
+## Run tests
+
+```sh
+$ python -m unittest tests/*.py
 ```
 
 ## CLI
@@ -87,76 +106,6 @@ Running `translate(sample, mapping)` against it would derive the following JSON:
 }
 ```
 
-A minimal example is as following:
-
-```python
-import normalize_json as normalize
-import json
-
-sample = {
-  'person': {
-    'name': 'João',
-    'pet': {
-      'name': 'Thor'
-    }
-  }
-}
-
-mapping = {
-  '__fields': {
-    'pet': {
-      '__fields': {
-        'name': '.person.pet.name'
-      }
-    }
-  }
-}
-
-string_mapping = {
-  '__fields': {
-    'dog': 'beef',
-    'bird': [
-      'seeds',
-      'plants'
-    ]
-  }
-}
-
-def output(obj):
-  print(json.dumps(obj, indent=2))
-
-def main():
-  """
-  {
-    "person.name": "João",
-    "person.pet.name": "Thor"
-  }
-  """
-  output(normalize.flatten(sample))
-
-  """
-  {
-    "pet": {
-      "name": "Thor"
-    }
-  }
-  """
-  output(normalize.translate(sample, mapping))
-
-  """
-  "dog"
-  """
-  output(normalize.translate_string('beef', string_mapping))
-
-  """
-  "bird"
-  """
-  output(normalize.translate_string('seeds', string_mapping))
-
-if __name__ == '__main__':
-  main()
-```
-
 ### Types
 
 The node accept the following Python primitive types (plus `objectid` and `datetime`):
@@ -179,23 +128,6 @@ Available modifiers are:
 - `reverse`: shift origin and mapped names
 - `default_null`: set None (or null) as the default value for absent properties
 - `enforce`: cast values to expected type instead of raising a TypeError
-
-## Support and contributing
-
-You can obtain suport if you're using this library on production. Just email the author at joaosan177[at]gmail.com. You may also send PRs, just make sure to include tests and follow PEP guidelines.
-
-### Run typechecking
-
-```sh
-$ python -m pyright
-```
-
-### Run tests
-
-```sh
-$ python -m unittest tests/*.py
-```
-
 
 ## License
 

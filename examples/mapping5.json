@@ -1,0 +1,15 @@
+{
+  "array": true,
+  "modifiers": [
+    "enforce"
+  ],
+  "__fields": {
+    "name": {
+      "type": "string"
+    },
+    "idade": {
+      "map": "age",
+      "type": "number"
+    }
+  }
+}
