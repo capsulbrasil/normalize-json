@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-versions:
+        python-version:
           - 3.11
 
     steps:
