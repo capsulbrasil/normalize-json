@@ -24,7 +24,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install pyright pipenv
-          pipenv install .
+          pipenv sync
       - name: Perform typechecking
         run: |
           python -m pyright
