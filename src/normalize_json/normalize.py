@@ -48,6 +48,7 @@ Node = typing.TypedDict('Node', {
 })
 
 Mapping = typing.TypedDict('Mapping', {
+    'array': typing.NotRequired[bool],
     'modifiers': typing.NotRequired[list[Modifier]],
     '__fields': typing.NotRequired[dict[str, 'Node']]
 })
@@ -58,12 +59,12 @@ StringMapping = typing.TypedDict('StringMapping', {
 
 RawObject = dict[str, typing.Any]
 
-def unserialize(raw: RawObject | str | bytes, mime: AcceptedMime = 'application/json'):
+def unserialize(raw: typing.Any, mime: AcceptedMime = 'application/json'):
     match mime:
         case 'application/json':
-            if isinstance(raw, dict): return raw
             if isinstance(raw, str): return json.loads(raw)
-            else: return json.loads(raw)
+            if isinstance(raw, bytes): return json.loads(raw)
+            else: return raw
 
     raise TypeError('invalid mime')
 
@@ -90,20 +91,25 @@ def flatten(target: RawObject, separator: str = '.', preserve_arrays: bool = Fal
     return ret
 
 
-def check_types(node: Node, value: typing.Any, expected: typing.Any):
+def check_types(node: Node, value: typing.Any, expected: typing.Any, modifiers: list[Modifier]):
+    if node.get('array') and value == []:
+        return None
+
     actual = value[0].__class__.__name__ \
         if node.get('array') \
         else value.__class__.__name__
 
     vexpected = TYPE_MAPPING.get(str(expected))
     if actual == vexpected \
-            or (actual == 'int' and vexpected in ['number', 'float']):
+            or (actual == 'int' and vexpected in ['number', 'float']) \
+            or (actual == 'NoneType' and 'default_null' in modifiers):
         return None
 
     return actual, str(expected)
 
 def handle_modifiers(node: Node, modifiers: list[Modifier], old_value: typing.Any):
     value = old_value
+
     if not value:
         if 'default' in node:
             value = node['default']
@@ -131,10 +137,10 @@ def handle_modifiers(node: Node, modifiers: list[Modifier], old_value: typing.An
 
     return value
 
-def get_initial_value(target: typing.Any, original_name: str, flat_obj: RawObject):
-    initial_value = flat_obj.get(original_name) \
-        if original_name[0] == '.' \
-        else target.get(original_name)
+def get_initial_value(target: typing.Any, mapped_name: str, flat_obj: RawObject):
+    initial_value = flat_obj.get(mapped_name) \
+        if mapped_name[0] == '.' or mapped_name[:2] == '[]' \
+        else target.get(mapped_name)
 
     return initial_value
 
@@ -166,31 +172,50 @@ def translate(target: T | tuple[T, int], mapping: Mapping, acc: RawObject = {}, 
             if 'reverse' in modifiers:
                 mapped_name, original_name = original_name, mapped_name
 
+            if not mapped_name:
+                continue
+
             for n in mapped_name if isinstance(mapped_name, list) else mapped_name.split('|'):
-                n = n.strip()
-                if typing.cast(RawObject, target).get(n):
-                    mapped_name = n
-                elif flat_obj.get(n):
-                    mapped_name = n
-                    initial_value = flat_obj[n]
-                elif '[]' in n:
-                    mapped_name = n.replace('[]', '[%d]' % target_index)
+                mapped_name = n.strip()
+
+                if '[]' in mapped_name:
+                    mapped_name = mapped_name.replace('[]', '[%d]' % target_index)
+
+                if typing.cast(typing.Any, target).get(mapped_name):
+                    initial_value = target[mapped_name]
+                    break
+                elif flat_obj.get(mapped_name):
+                    mapped_name = mapped_name
+                    initial_value = flat_obj[mapped_name]
+                    break
                 elif mapped_name in flat_obj_arr:
                     initial_value = flat_obj_arr.get(mapped_name)
+                    break
 
             mapped_name = typing.cast(str, mapped_name)
             original_name = typing.cast(str, original_name)
 
             if '__fields' in node:
-                child: typing.Any = initial_value or target[mapped_name]
-                ret[original_name] = translate(child, node, acc, modifiers, (flat_obj, flat_obj_arr))
+                if not node.get('map'):
+                    value = translate(typing.cast(typing.Any, target), node, acc, modifiers)
+                else:
+                    child: typing.Any = initial_value or target[original_name]
+                    value = translate(child, node, acc, modifiers, (flat_obj, flat_obj_arr))
+
+                if node.get('array') and not isinstance(value, list):
+                    value = [value]
+
+                ret[original_name] = value
                 continue
 
             if not initial_value:
                 initial_value = get_initial_value(target, mapped_name, flat_obj)
 
             value = handle_modifiers(node, modifiers, initial_value)
-            if err := check_types(node, value, mapped_type):
+            if node.get('array') and not isinstance(value, list):
+                value = [value]
+
+            if err := check_types(node, value, mapped_type, modifiers):
                 raise ValueError('check_types @ %s (got "%s", expected "%s")' % (original_name, *err))
 
             ret[original_name] = value
