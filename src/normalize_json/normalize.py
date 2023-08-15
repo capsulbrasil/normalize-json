@@ -1,5 +1,6 @@
 import typing
 import json
+import re
 import dateutil.parser as dateparser
 
 T = typing.TypeVar('T')
@@ -129,8 +130,12 @@ def handle_modifiers(node: Node, modifiers: list[Modifier], old_value: typing.An
 
     if 'enforce' in modifiers:
         match node['type']:
-            case 'number': value = float(value)
-            case 'integer': value = int(value)
+            case 'number':
+                value = re.sub(r'[^0-9\.]', '', value) or 0
+                value = float(value)
+            case 'integer':
+                value = re.sub(r'[^0-9]', '', value) or 0
+                value = int(value)
             case 'string': value = str(value)
             case 'datetime': value = dateparser.parse(value)
             case _: ...
