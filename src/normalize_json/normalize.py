@@ -120,7 +120,7 @@ def handle_modifiers(node: Node, modifiers: list[Modifier], old_value: typing.An
             raise ValueError('value for %s wasnt provided' % node.get('map'))
 
     if trim := node.get('trim_start'):
-        value = value[trim:]
+        value = value[trim*-1:]
 
     if trim := node.get('trim_end'):
         value = value[:trim]
