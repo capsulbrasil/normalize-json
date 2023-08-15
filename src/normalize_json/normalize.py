@@ -92,7 +92,7 @@ def flatten(target: RawObject, separator: str = '.', preserve_arrays: bool = Fal
     return ret
 
 
-def check_types(node: Node, value: typing.Any, expected: typing.Any, modifiers: list[Modifier]):
+def check_types(node: Node, value: typing.Any, modifiers: list[Modifier]):
     if node.get('array') and value == []:
         return None
 
@@ -100,13 +100,13 @@ def check_types(node: Node, value: typing.Any, expected: typing.Any, modifiers: 
         if node.get('array') \
         else value.__class__.__name__
 
-    vexpected = TYPE_MAPPING.get(str(expected))
+    vexpected = TYPE_MAPPING.get(node['type'])
     if actual == vexpected \
             or (actual == 'int' and vexpected in ['number', 'float']) \
             or (actual == 'NoneType' and 'default_null' in modifiers):
         return None
 
-    return actual, str(expected)
+    return actual, node['type']
 
 def handle_modifiers(node: Node, modifiers: list[Modifier], old_value: typing.Any):
     value = old_value
@@ -128,7 +128,7 @@ def handle_modifiers(node: Node, modifiers: list[Modifier], old_value: typing.An
     if pick := node.get('pick_until'):
         value = value.split(pick)[0]
 
-    if 'enforce' in modifiers:
+    if 'enforce' in modifiers and check_types(node, value, modifiers):
         match node['type']:
             case 'number':
                 value = re.sub(r'[^0-9\.]', '', value) or 0
@@ -170,7 +170,6 @@ def translate(target: T | tuple[T, int], mapping: Mapping, acc: RawObject = {}, 
 
         for original_name, node in mapping['__fields'].items():
             mapped_name = node.get('map', original_name)
-            mapped_type = node['type']
             initial_value: typing.Any = None
 
             modifiers = node.get('modifiers', root_modifiers)
@@ -220,7 +219,7 @@ def translate(target: T | tuple[T, int], mapping: Mapping, acc: RawObject = {}, 
             if node.get('array') and not isinstance(value, list):
                 value = [value]
 
-            if err := check_types(node, value, mapped_type, modifiers):
+            if err := check_types(node, value, modifiers):
                 raise ValueError('check_types @ %s (got "%s", expected "%s")' % (original_name, *err))
 
             ret[original_name] = value
