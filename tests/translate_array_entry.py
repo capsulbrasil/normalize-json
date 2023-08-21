@@ -108,6 +108,3 @@ class TestTranslateArrayEntry(TestCase):
     def test_translate_output(self):
         unserialized = unserialize(sample1)
         result = translate(unserialized, mapping1)
-
-        import json
-        print(json.dumps(result, indent=2))

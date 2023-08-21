@@ -69,21 +69,27 @@ def unserialize(raw: typing.Any, mime: AcceptedMime = 'application/json'):
 
     raise TypeError('invalid mime')
 
-def flatten(target: RawObject, separator: str = '.', preserve_arrays: bool = False):
+def flatten(target: typing.Any, separator: str = '.', preserve_arrays: bool = False):
+    if not isinstance(target, dict) and not isinstance(target, list):
+        return target
+
     ret: RawObject = {}
 
-    def internal_flatten(obj: typing.Any, parent: str = '') -> typing.Any:
+    def internal_flatten(obj: typing.Any, parent: str = '', depth: int = 0) -> typing.Any:
         if isinstance(obj, dict):
             for k, v in typing.cast(RawObject, obj).items():
-                internal_flatten(v, '%s%s%s' % (parent, separator, k))
+                internal_flatten(v, '%s%s%s' % (parent, separator, k), depth + 1)
 
         elif isinstance(obj, list):
-            if preserve_arrays:
-                ret[parent] = obj
+            if preserve_arrays and depth > 0:
+                ret[parent] = [
+                    flatten(elem, separator, preserve_arrays)
+                    for elem in typing.cast(list[typing.Any], obj)
+                ]
                 return
 
             for i, v in enumerate(typing.cast(list[RawObject], obj)):
-                internal_flatten(v, '%s[%d]' % (parent, i))
+                internal_flatten(v, '%s[%d]' % (parent, i), depth + 1)
 
         else:
             ret[parent] = obj
@@ -108,7 +114,7 @@ def check_types(node: Node, value: typing.Any, modifiers: list[Modifier]):
 
     return actual, node['type']
 
-def handle_modifiers(node: Node, modifiers: list[Modifier], old_value: typing.Any):
+def handle_modifiers(node: Node, mapped_name: str, modifiers: list[Modifier], old_value: typing.Any):
     value = old_value
 
     if not value:
@@ -117,7 +123,7 @@ def handle_modifiers(node: Node, modifiers: list[Modifier], old_value: typing.An
         elif 'default_null' in modifiers:
             return None
         else:
-            raise ValueError('value for %s wasnt provided' % node.get('map'))
+            raise ValueError('value for %s wasnt provided' % mapped_name)
 
     if trim := node.get('trim_start'):
         value = value[trim*-1:]
@@ -176,9 +182,6 @@ def translate(target: T | tuple[T, int], mapping: Mapping, acc: RawObject = {}, 
             if 'reverse' in modifiers:
                 mapped_name, original_name = original_name, mapped_name
 
-            if not mapped_name:
-                continue
-
             for n in mapped_name if isinstance(mapped_name, list) else mapped_name.split('|'):
                 mapped_name = n.strip()
 
@@ -205,7 +208,6 @@ def translate(target: T | tuple[T, int], mapping: Mapping, acc: RawObject = {}, 
                 else:
                     child: typing.Any = initial_value or target[original_name]
                     value = translate(child, node, acc, modifiers, (flat_obj, flat_obj_arr))
-
                 if node.get('array') and not isinstance(value, list):
                     value = [value]
 
@@ -215,7 +217,7 @@ def translate(target: T | tuple[T, int], mapping: Mapping, acc: RawObject = {}, 
             if not initial_value:
                 initial_value = get_initial_value(target, mapped_name, flat_obj)
 
-            value = handle_modifiers(node, modifiers, initial_value)
+            value = handle_modifiers(node, mapped_name, modifiers, initial_value)
             if node.get('array') and not isinstance(value, list):
                 value = [value]
 
@@ -234,7 +236,6 @@ def translate(target: T | tuple[T, int], mapping: Mapping, acc: RawObject = {}, 
         ]
 
         return typing.cast(T, result)
-
 
     return typing.cast(T, ret)
 

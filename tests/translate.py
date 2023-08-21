@@ -118,6 +118,51 @@ sample1 = {
     }
 }
 
+mapping2: Mapping = {
+    '__fields': {
+        'items': {
+            'map': 'items',
+            'type': 'object',
+            '__fields': {
+                'meta': {
+                    'map': 'meta',
+                    'type': 'object',
+                    '__fields': {
+                        'page': {
+                            'type': 'integer'
+                        }
+                    }
+                },
+                'data': {
+                    'map': 'data',
+                    'array': True,
+                    'type': 'object',
+                    '__fields': {
+                        'name': {
+                            'type': 'string'
+                        },
+                        'age': {
+                            'type': 'integer'
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+sample2 = {
+    'items': {
+        'meta': {
+            'page': 1,
+        },
+        'data': [
+            { 'name': 'João', 'age': 23 },
+            { 'name': 'Thor', 'age': 15 }
+        ]
+    }
+}
+
 class TestTranslate(TestCase):
     def test_translate_output(self):
         unserialized = unserialize(sample1)
@@ -137,3 +182,13 @@ class TestTranslate(TestCase):
         self.assertEqual(result['trim_me_end'], 'abc')
         self.assertEqual(result['pick_until'], 'Terry')
 
+
+    def test_translate_inloco(self):
+        unserialized = unserialize(sample2)
+        result = translate(unserialized, mapping2)
+
+        self.assertEqual(result['items']['meta']['page'], 1)
+        self.assertEqual(result['items']['data'][0]['name'], 'João')
+        self.assertEqual(result['items']['data'][0]['age'], 23)
+        self.assertEqual(result['items']['data'][1]['name'], 'Thor')
+        self.assertEqual(result['items']['data'][1]['age'], 15)
