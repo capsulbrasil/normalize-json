@@ -195,7 +195,7 @@ def translate(target: T | tuple[T, int], mapping: Mapping, acc: RawObject = {}, 
                     mapped_name = mapped_name
                     initial_value = flat_obj[mapped_name]
                     break
-                elif mapped_name in flat_obj_arr:
+                elif mapped_name in flat_obj_arr and flat_obj_arr[mapped_name] != None:
                     initial_value = flat_obj_arr.get(mapped_name)
                     break
 
