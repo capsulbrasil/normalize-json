@@ -5,6 +5,9 @@
     "default_null"
   ],
   "__fields": {
+    "bananao": {
+      "map": "{{ teste }}"
+    },
     "entry": {
       "map": "shipment",
       "type": "object",

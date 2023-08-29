@@ -47,6 +47,9 @@ An example mapping could be as following. In this example we'll rename the `.nes
     "default_null"
   ],
   "__fields": {
+    "secret": {
+      "map": "{{ secret.key }}"
+    },
     "nested_prop": {
       "type": "object",
       "__fields": {
@@ -71,10 +74,11 @@ An example mapping could be as following. In this example we'll rename the `.nes
 }
 ```
 
-Running `translate(sample, mapping)` against it would derive the following JSON:
+Running `translate(sample, mapping, substitute={ 'secret.key': 'abc123' })` against it would derive the following JSON:
 
 ```json
 {
+  "secret": "abc123",
   "nested_prop": {
     "name": "Terry Davis",
     "years_on_earth": "50",

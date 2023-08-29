@@ -37,16 +37,16 @@ AcceptedMime = typing.Literal[
 ]
 
 Node = typing.TypedDict('Node', {
-    'map': typing.NotRequired[str | list[str]],
+    'map': str | list[str],
     'type': AcceptedType,
-    'array': typing.NotRequired[bool],
-    'default': typing.NotRequired[typing.Any],
-    'modifiers': typing.NotRequired[list[Modifier]],
-    'trim_start': typing.NotRequired[int],
-    'trim_end': typing.NotRequired[int],
-    'pick_until': typing.NotRequired[str],
-    '__fields': typing.NotRequired[dict[str, 'Node']]
-})
+    'array': bool,
+    'default': typing.Any,
+    'modifiers': list[Modifier],
+    'trim_start': int,
+    'trim_end': int,
+    'pick_until': str,
+    '__fields': dict[str, 'Node']
+}, total=False)
 
 Mapping = typing.TypedDict('Mapping', {
     'array': typing.NotRequired[bool],
@@ -106,7 +106,7 @@ def check_types(node: Node, value: typing.Any, modifiers: list[Modifier]):
         if node.get('array') \
         else value.__class__.__name__
 
-    vexpected = TYPE_MAPPING.get(node['type'])
+    vexpected = TYPE_MAPPING.get(node.get('type', 'string'))
     if actual == vexpected \
             or (actual == 'int' and vexpected in ['number', 'float']) \
             or (actual == 'NoneType' and 'default_null' in modifiers):
@@ -156,7 +156,13 @@ def get_initial_value(target: typing.Any, mapped_name: str, flat_obj: RawObject)
     return initial_value
 
 
-def translate(target: T | tuple[T, int], mapping: Mapping, acc: RawObject = {}, inherited_modifiers: list[Modifier] | None = None, inherited_flat_obj: tuple[RawObject, RawObject] | None = None) -> T:
+def translate(
+    target: T | tuple[T, int],
+    mapping: Mapping, acc: RawObject = {},
+    inherited_modifiers: list[Modifier] | None = None,
+    inherited_flat_obj: tuple[RawObject, RawObject] | None = None,
+    substitute: dict[str, typing.Any] = {}
+) -> T:
     ret: RawObject = {}
     flat_obj, flat_obj_arr = inherited_flat_obj or (
         flatten(typing.cast(RawObject, target)),
@@ -178,6 +184,8 @@ def translate(target: T | tuple[T, int], mapping: Mapping, acc: RawObject = {}, 
             mapped_name = node.get('map', original_name)
             initial_value: typing.Any = None
 
+            var_name: str|None = None
+
             modifiers = node.get('modifiers', root_modifiers)
             if 'reverse' in modifiers:
                 mapped_name, original_name = original_name, mapped_name
@@ -198,16 +206,23 @@ def translate(target: T | tuple[T, int], mapping: Mapping, acc: RawObject = {}, 
                 elif mapped_name in flat_obj_arr and flat_obj_arr[mapped_name] != None:
                     initial_value = flat_obj_arr.get(mapped_name)
                     break
+                elif mapped_name[:2] == "{{":
+                    var_name = mapped_name[2:].replace(' ', '')[:-2]
+                    break
 
             mapped_name = typing.cast(str, mapped_name)
             original_name = typing.cast(str, original_name)
 
+            if var_name:
+                ret[original_name] = substitute.get(var_name)
+                continue
+
             if '__fields' in node:
                 if not node.get('map'):
-                    value = translate(typing.cast(typing.Any, target), node, acc, modifiers)
+                    value = translate(typing.cast(typing.Any, target), node, acc, modifiers, substitute=substitute)
                 else:
                     child: typing.Any = initial_value or target[original_name]
-                    value = translate(child, node, acc, modifiers, (flat_obj, flat_obj_arr))
+                    value = translate(child, node, acc, modifiers, (flat_obj, flat_obj_arr), substitute=substitute)
                 if node.get('array') and not isinstance(value, list):
                     value = [value]
 
@@ -231,7 +246,7 @@ def translate(target: T | tuple[T, int], mapping: Mapping, acc: RawObject = {}, 
             raise ValueError('illegal array')
 
         result = [
-            translate((e, idx), mapping, acc, inherited_modifiers, (flat_obj, flat_obj_arr))
+            translate((e, idx), mapping, acc, inherited_modifiers, (flat_obj, flat_obj_arr), substitute=substitute)
             for idx, e in enumerate(typing.cast(list[typing.Any], target))
         ]
 

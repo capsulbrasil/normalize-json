@@ -119,7 +119,13 @@ sample1 = {
 }
 
 mapping2: Mapping = {
+    'modifiers': [
+        'default_null'
+    ],
     '__fields': {
+        'secret_key': {
+            'map': '{{ secrets.key }}'
+        },
         'items': {
             'map': 'items',
             'type': 'object',
@@ -142,7 +148,11 @@ mapping2: Mapping = {
                             'type': 'string'
                         },
                         'age': {
-                            'type': 'integer'
+                            'type': 'integer',
+                            'map': [
+                                'age',
+                                '{{ defaults.age }}'
+                            ]
                         }
                     }
                 }
@@ -182,7 +192,6 @@ class TestTranslate(TestCase):
         self.assertEqual(result['trim_me_end'], 'abc')
         self.assertEqual(result['pick_until'], 'Terry')
 
-
     def test_translate_inloco(self):
         unserialized = unserialize(sample2)
         result = translate(unserialized, mapping2)
@@ -192,3 +201,17 @@ class TestTranslate(TestCase):
         self.assertEqual(result['items']['data'][0]['age'], 23)
         self.assertEqual(result['items']['data'][1]['name'], 'Thor')
         self.assertEqual(result['items']['data'][1]['age'], 15)
+
+
+    def test_translate_substitute(self):
+        sample2_copy = sample2.copy()
+        del sample2_copy['items']['data'][0]['age']
+
+        unserialized = unserialize(sample2_copy)
+        result = translate(unserialized, mapping2, substitute={
+            'secrets.key': 'abc123',
+            'defaults.age': 20
+        })
+
+        self.assertEqual(result['secret_key'], 'abc123')
+        self.assertEqual(result['items']['data'][0]['age'], 20)
