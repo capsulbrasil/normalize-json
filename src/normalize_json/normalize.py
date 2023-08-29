@@ -106,13 +106,15 @@ def check_types(node: Node, value: typing.Any, modifiers: list[Modifier]):
         if node.get('array') \
         else value.__class__.__name__
 
-    vexpected = TYPE_MAPPING.get(node.get('type', 'string'))
+    node_type = node.get('type', 'string')
+
+    vexpected = TYPE_MAPPING.get(node_type)
     if actual == vexpected \
             or (actual == 'int' and vexpected in ['number', 'float']) \
             or (actual == 'NoneType' and 'default_null' in modifiers):
         return None
 
-    return actual, node['type']
+    return actual, node_type
 
 def handle_modifiers(node: Node, mapped_name: str, modifiers: list[Modifier], old_value: typing.Any):
     value = old_value
@@ -135,7 +137,7 @@ def handle_modifiers(node: Node, mapped_name: str, modifiers: list[Modifier], ol
         value = value.split(pick)[0]
 
     if 'enforce' in modifiers and check_types(node, value, modifiers):
-        match node['type']:
+        match node.get('type', 'string'):
             case 'number':
                 value = re.sub(r'[^0-9\.]', '', value) or 0
                 value = float(value)
