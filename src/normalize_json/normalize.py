@@ -208,7 +208,7 @@ def translate(
                 elif mapped_name in flat_obj_arr and flat_obj_arr[mapped_name] != None:
                     initial_value = flat_obj_arr.get(mapped_name)
                     break
-                elif mapped_name[:2] == "{{" and mapped_name[:-2] == "}}":
+                elif mapped_name[:2] == "{{" and mapped_name[-2:] == "}}":
                     var_name = mapped_name[2:].replace(' ', '')[:-2]
                     break
 
