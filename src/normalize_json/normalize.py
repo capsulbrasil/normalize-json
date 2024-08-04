@@ -2,6 +2,7 @@ import typing
 import json
 import re
 import dateutil.parser as dateparser
+import unicodedata
 
 T = typing.TypeVar('T')
 
@@ -19,7 +20,8 @@ Modifier = typing.Literal[
     'strict',
     'reverse',
     'default_null',
-    'enforce'
+    'enforce',
+    'normalize_unicode'
 ]
 
 AcceptedType = typing.Literal[
@@ -127,6 +129,9 @@ def handle_modifiers(node: Node, mapped_name: str, modifiers: list[Modifier], ol
         else:
             raise ValueError('value for %s wasnt provided' % mapped_name)
 
+    if 'normalize_unicode' in modifiers and isinstance(value, str):
+        value = unicodedata.normalize('NFKD', value)
+
     if trim := node.get('trim_start'):
         value = value[trim*-1:]
 
@@ -223,7 +228,9 @@ def translate(
                 if not node.get('map'):
                     value = translate(typing.cast(typing.Any, target), node, acc, modifiers, substitute=substitute)
                 else:
-                    child: typing.Any = initial_value or target[original_name]
+                    child: typing.Any = initial_value \
+                            if initial_value or isinstance(initial_value, list) \
+                            else target[original_name]
                     value = translate(child, node, acc, modifiers, (flat_obj, flat_obj_arr), substitute=substitute)
                 if node.get('array') and not isinstance(value, list):
                     value = [value]
