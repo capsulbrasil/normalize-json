@@ -173,6 +173,42 @@ The node accept the following Python primitive types (plus `objectid` and `datet
 - `objectid`
 - `boolean`
 
+### Enums
+
+Values can be mapped:
+
+```python
+mapping: Mapping = {
+  '__fields': {
+    'status': {
+      'enum': {
+        'ativo': 'active',
+        'inativo': 'inactive',
+      }
+    },
+    'colors': {
+      'array': True,
+      'enum': {
+        'azul': 'blue',
+        'vermelho': 'red',
+        'verde': 'green',
+      }
+    }
+  }
+}
+
+sample = {
+  'status': 'ativo',
+  'colors': [
+    'azul',
+    'vermelho',
+  ]
+}
+
+# { 'status': 'active', 'colors': ['blue', 'red'] }
+result = normalize.translate(sample, mapping)
+```
+
 ### Modifiers
 
 You can change the default behavior passing a array of "modifiers" in your mapping node. Those will be inherited all the way down until the "modifiers" property is overriden.
