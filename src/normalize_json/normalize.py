@@ -102,14 +102,15 @@ def flatten(target: typing.Any, separator: str = '.', preserve_arrays: bool = Fa
 
 
 def check_types(node: Node, value: typing.Any, modifiers: list[Modifier]):
+    if node.get('array') and value == []:
+        return None
+
     actual = value[0].__class__.__name__ \
         if node.get('array') \
         else value.__class__.__name__
 
     node_type = node.get('type', 'string')
 
-    if node.get('array') and value == []:
-        return None
     if node_enum := node.get('enum'):
         if actual == 'NoneType' and 'default_null' in modifiers:
             return None
