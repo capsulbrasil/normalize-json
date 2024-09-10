@@ -265,12 +265,14 @@ def translate(
 
             if node.get('enum') and value != None:
                 if node.get('array'):
+                    if not isinstance(value, list):
+                        raise TypeError()
                     value = [
-                        node['enum'].get(v)
-                        for v in value
+                        node.get('enum', {}).get(v)
+                        for v in typing.cast(list[str], value)
                     ]
                 else:
-                    value = node['enum'].get(value)
+                    value = node.get('enum', {}).get(str(typing.cast(typing.Any, value)))
 
             ret[original_name] = value
 
