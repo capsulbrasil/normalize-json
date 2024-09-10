@@ -110,20 +110,20 @@ def check_types(node: Node, value: typing.Any, modifiers: list[Modifier]):
 
     if node.get('array') and value == []:
         return None
-    if node.get('enum'):
+    if node_enum := node.get('enum'):
         if actual == 'NoneType' and 'default_null' in modifiers:
             return None
 
         if node.get('array'):
             for v in value:
-                if v not in node['enum']:
+                if v not in node_enum:
                     break
             else:
                 return None
-        elif value in node['enum']:
+        elif value in node_enum:
             return None
 
-        return value, list(node['enum'].keys())
+        return value, list(node_enum.keys())
 
     vexpected = TYPE_MAPPING.get(node_type)
     if actual == vexpected \
@@ -263,7 +263,7 @@ def translate(
             if err := check_types(node, value, modifiers):
                 raise ValueError('check_types @ %s (got "%s", expected "%s")' % (original_name, *err))
 
-            if node.get('enum') and value != None:
+            if node_enum := node.get('enum') and value != None:
                 if node.get('array'):
                     if not isinstance(value, list):
                         raise TypeError()
@@ -272,7 +272,7 @@ def translate(
                         for v in typing.cast(list[str], value)
                     ]
                 else:
-                    value = node.get('enum', {}).get(str(typing.cast(typing.Any, value)))
+                    value = typing.cast(dict[str, str], node_enum).get(typing.cast(typing.Any, value))
 
             ret[original_name] = value
 
