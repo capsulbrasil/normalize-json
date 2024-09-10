@@ -126,6 +126,21 @@ mapping2: Mapping = {
         'secret_key': {
             'map': '{{ secrets.key }}'
         },
+        'status': {
+            'enum': {
+                'pago': 'paid',
+                'pendente': 'pending',
+                'recusado': 'refused',
+            }
+        },
+        'statuses': {
+            'array': True,
+            'enum': {
+                'pago': 'paid',
+                'pendente': 'pending',
+                'recusado': 'refused',
+            }
+        },
         'items': {
             'map': 'items',
             'type': 'object',
@@ -162,6 +177,11 @@ mapping2: Mapping = {
 }
 
 sample2 = {
+    'status': 'pago',
+    'statuses': [
+        'pendente',
+        'recusado',
+    ],
     'items': {
         'meta': {
             'page': 1,
@@ -177,6 +197,7 @@ class TestTranslate(TestCase):
     def test_translate_output(self):
         unserialized = unserialize(sample1)
         result = translate(unserialized, mapping1)
+
 
         self.assertEqual(result['name'], sample1['nome'])
         self.assertEqual(result['age'], str(sample1['idade']))
@@ -201,6 +222,13 @@ class TestTranslate(TestCase):
         self.assertEqual(result['items']['data'][0]['age'], 23)
         self.assertEqual(result['items']['data'][1]['name'], 'Thor')
         self.assertEqual(result['items']['data'][1]['age'], 15)
+
+    def test_translate_enums(self):
+        unserialized = unserialize(sample2)
+        result = translate(unserialized, mapping2)
+        self.assertEqual(result['status'], 'paid')
+        self.assertEqual(result['statuses'][0], 'pending')
+        self.assertEqual(result['statuses'][1], 'refused')
 
 
     def test_translate_substitute(self):

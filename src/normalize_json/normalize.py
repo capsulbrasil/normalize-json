@@ -47,6 +47,7 @@ Node = typing.TypedDict('Node', {
     'trim_start': int,
     'trim_end': int,
     'pick_until': str,
+    'enum': dict[str, str],
     '__fields': dict[str, 'Node']
 }, total=False)
 
@@ -101,14 +102,28 @@ def flatten(target: typing.Any, separator: str = '.', preserve_arrays: bool = Fa
 
 
 def check_types(node: Node, value: typing.Any, modifiers: list[Modifier]):
-    if node.get('array') and value == []:
-        return None
-
     actual = value[0].__class__.__name__ \
         if node.get('array') \
         else value.__class__.__name__
 
     node_type = node.get('type', 'string')
+
+    if node.get('array') and value == []:
+        return None
+    if node.get('enum'):
+        if actual == 'NoneType' and 'default_null' in modifiers:
+            return None
+
+        if node.get('array'):
+            for v in value:
+                if v not in node['enum']:
+                    break
+            else:
+                return None
+        elif value in node['enum']:
+            return None
+
+        return value, list(node['enum'].keys())
 
     vexpected = TYPE_MAPPING.get(node_type)
     if actual == vexpected \
@@ -247,6 +262,15 @@ def translate(
 
             if err := check_types(node, value, modifiers):
                 raise ValueError('check_types @ %s (got "%s", expected "%s")' % (original_name, *err))
+
+            if node.get('enum') and value != None:
+                if node.get('array'):
+                    value = [
+                        node['enum'].get(v)
+                        for v in value
+                    ]
+                else:
+                    value = node['enum'].get(value)
 
             ret[original_name] = value
 
