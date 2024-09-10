@@ -175,7 +175,7 @@ The node accept the following Python primitive types (plus `objectid` and `datet
 
 ### Enums
 
-Values can be mapped:
+String values can be mapped using enums:
 
 ```python
 mapping: Mapping = {
