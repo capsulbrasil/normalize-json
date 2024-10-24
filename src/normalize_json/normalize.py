@@ -261,19 +261,21 @@ def translate(
             if node.get('array') and not isinstance(value, list):
                 value = [value]
 
+            default = node.get('default')
             if err := check_types(node, value, modifiers):
-                raise ValueError('check_types @ %s (got "%s", expected "%s")' % (original_name, *err))
+                if not default:
+                    raise ValueError('check_types @ %s (got "%s", expected "%s")' % (original_name, *err))
 
             if (node_enum := node.get('enum')) and value != None:
                 if node.get('array'):
                     if not isinstance(value, list):
                         raise TypeError()
                     value = [
-                        node.get('enum', {}).get(v)
+                        node.get('enum', {}).get(v, default)
                         for v in typing.cast(list[str], value)
                     ]
                 else:
-                    value = node_enum.get(typing.cast(typing.Any, value))
+                    value = node_enum.get(typing.cast(typing.Any, value), default)
 
             ret[original_name] = value
 

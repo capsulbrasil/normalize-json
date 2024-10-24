@@ -131,7 +131,7 @@ mapping2: Mapping = {
                 'pago': 'paid',
                 'pendente': 'pending',
                 'recusado': 'refused',
-            }
+            },
         },
         'statuses': {
             'array': True,
@@ -139,7 +139,8 @@ mapping2: Mapping = {
                 'pago': 'paid',
                 'pendente': 'pending',
                 'recusado': 'refused',
-            }
+            },
+            'default': 'pending'
         },
         'items': {
             'map': 'items',
@@ -181,6 +182,7 @@ sample2 = {
     'statuses': [
         'pendente',
         'recusado',
+        'invalid',
     ],
     'items': {
         'meta': {
@@ -229,6 +231,7 @@ class TestTranslate(TestCase):
         self.assertEqual(result['status'], 'paid')
         self.assertEqual(result['statuses'][0], 'pending')
         self.assertEqual(result['statuses'][1], 'refused')
+        self.assertEqual(result['statuses'][2], 'pending')
 
 
     def test_translate_substitute(self):
