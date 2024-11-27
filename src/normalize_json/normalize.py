@@ -137,7 +137,7 @@ def check_types(node: Node, value: typing.Any, modifiers: list[Modifier]):
 def handle_modifiers(node: Node, mapped_name: str, modifiers: list[Modifier], old_value: typing.Any):
     value = old_value
 
-    if not value:
+    if value == None:
         if 'default' in node:
             value = node['default']
         elif 'default_null' in modifiers:
