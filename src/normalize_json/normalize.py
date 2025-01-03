@@ -254,7 +254,7 @@ def translate(
                 ret[original_name] = value
                 continue
 
-            if not initial_value:
+            if initial_value == None:
                 initial_value = get_initial_value(target, mapped_name, flat_obj)
 
             value = handle_modifiers(node, mapped_name, modifiers, initial_value)
